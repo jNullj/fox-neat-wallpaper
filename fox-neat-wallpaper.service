@@ -1,0 +1,9 @@
+[Unit]
+Description=Update fox-neat-wallpaper for running user
+
+[Service]
+Type=simple
+ExecStart=/bin/bash /opt/fox-neat-wallpaper/fox-neat-wallpaper.sh update
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,12 @@
+[Unit]
+Description=Update fox-neat-wallpaper for running user
+
+[Timer]
+Persistent=true
+# there is no rush, delay by 10min to avoid startup slowdown
+OnBootSec=10min
+OnUnitInactiveSec=3h
+Unit=fox-neat-wallpaper.service
+
+[Install]
+WantedBy=timers.target

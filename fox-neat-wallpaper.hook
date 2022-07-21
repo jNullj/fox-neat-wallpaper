@@ -1,0 +1,11 @@
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Operation = Remove
+Type = Package
+Target = *
+[Action]
+Description = Updating fox-neat-wallpaper for relevant users
+Depends = imagemagick
+When = PostTransaction
+Exec = /bin/bash /opt/fox-neat-wallpaper/hook-script.sh
