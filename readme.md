@@ -2,12 +2,15 @@
 
 ![Banner](readme_pictures/banner.png)
 
+[![aur-shield](https://img.shields.io/aur/version/fox-neat-wallpaper?style=flat-square)](https://aur.archlinux.org/packages/fox-neat-wallpaper)
+
 This is a simple script that generates a wallpaper based on installed packages and marks which ones are outdated.
 This script is made to be used for archlinux with the xfce4 desktop environment, one might use it with other desktop environment menually.
 
 ## Installation
 
-Archlinux package will soon be added to the aur.
+Can be installed from the [AUR](https://aur.archlinux.org/packages/fox-neat-wallpaper).
+
 If you wish to install menually you should first make sure you have all dependencies:
 
 ```bash
