@@ -15,8 +15,13 @@ export DBUS_SESSION_BUS_ADDRESS="unix:path=${XDG_RUNTIME_DIR}/bus"
 
 # functions to refresh/update global veriables about the user/system
 
+get_primary_display () {
+	xfconf-query -c displays -p /Default -lv | grep "Primary" | grep "true" | cut -d "/" -f3
+}
+
 get_display_resolution () {
-	IMAGE_SIZE=$(xfconf-query -c displays -p /Default/eDP/Resolution)
+	local PRIMARY_DISPLAY=$(get_primary_display)
+	IMAGE_SIZE=$(xfconf-query -c displays -p "/Default/$PRIMARY_DISPLAY/Resolution")
 	IMAGE_SIZE_X=$(echo $IMAGE_SIZE | cut -d'x' -f1)
 	IMAGE_SIZE_Y=$(echo $IMAGE_SIZE | cut -d'x' -f2)
 }
@@ -89,9 +94,10 @@ generate_wallpaper () {
 
 # set xfce4 wallpaper for user using xfconf-query
 set_wallpaper () {
+local PRIMARY_DISPLAY=$(get_primary_display)
 xfconf-query \
   --channel xfce4-desktop \
-  --property /backdrop/screen0/monitoreDP/workspace0/last-image \
+  --property "/backdrop/screen0/monitor${PRIMARY_DISPLAY}/workspace0/last-image" \
   --set $WALLPAPER_PATH/$IMG_NAME
 }
 
