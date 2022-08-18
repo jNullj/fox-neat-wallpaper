@@ -41,7 +41,7 @@ get_outdated_packages () {
 		return 1
 	fi
 	echo "$updates_output" | while read -r pkgname old_ver arrow new_ver; do
-		echo "$pkgname"
+		echo "$pkgname $old_ver;"
 	done
 }
 
@@ -49,42 +49,23 @@ get_current_packages () {
 	echo "$(pacman -Q)"
 }
 
-# generate a list of all installed packages with outdated packages marked in red using pango supported tags
-html_mark_outdated_packages () {
-	local color="red"
-	local packages="$(get_current_packages)"
-	local outdated # delcare before setting to insure exit code is picked, otherwise bash will first set then make local which will allways exit with 0
+generate_wallpaper () {
+	cd /tmp
+	local all_pks # delcare before setting to insure exit code is picked, otherwise bash will first set then make local which will allways exit with 0
+	local outdated
+	all_pks="$(get_current_packages | tr '\n' ' ')"
 	outdated="$(get_outdated_packages)"
+	# if get_outdated_packages failed, dont remove the existing wallpaper with an empty one
 	if [ $? -ne 0 ]; then
 		# checkupdates might fail (for example if there is no network)
 		# if that happends there is no point in updating anything
 		return 1
 	fi
-	if [ -z "$outdated" ]; then
-		# if empty avoid running the while loop
-		# as sed would fit any string for empty $oldpkg
-		# also avoid spending any additional time on marking red text, as there is none
-		packages=$(echo $packages | tr '\n' ' ')
-		echo "$packages"
-		return
-	fi
-	while read -r oldpkg; do
-		packages="$( echo "$packages" | sed 's,\('^"$oldpkg"'.*$\),<span foreground="'"$color"'">\1</span>,' )"
-	done <<< "$(echo "$outdated")"
-	packages=$(echo $packages | tr '\n' ' ')	# change newline to spaces for rendering the image
-	echo "$packages"
-}
-
-generate_wallpaper () {
-	cd /tmp
-	local pango_text # delcare before setting to insure exit code is picked, otherwise bash will first set then make local which will allways exit with 0
-	pango_text="$(html_mark_outdated_packages)\n"	# newline at the end for the justify to space out the last line
-	# if html_mark_outdated_packages failed, dont remove the existing wallpaper with an empty one
-	if [ $? -ne 0 ]; then
-		return 1
-	fi
+	outdated="$(echo $outdated | tr --d '\n')"
+	outdated="${outdated::-1}"	# remove last semicolon to avoid marking new value when there is none
 	# generate image of background text
-	convert -background black -fill green -font Liberation-Mono -size $IMAGE_SIZE -define pango:justify=true pango:"$pango_text" $IMG_NAME
+	# chromium spams lots of undesired output while attempting to use gpu acceleration. to avoid that output is redirected to /dev/null
+	chromium --headless --hide-scrollbars --window-size=$IMAGE_SIZE --screenshot=$IMG_NAME "file://$INSTALL_PATH/render.html?pkg_list=$all_pks&outdated=$outdated&height=$IMAGE_SIZE_Y&width=$IMAGE_SIZE_X" &> /dev/null
 	# add logo to the background
 	convert $IMG_NAME -size $(expr $IMAGE_SIZE_X \* $LOGO_SIZE_PRECENT / 100)x -background none $INSTALL_PATH/logo.svg -gravity center -extent $IMAGE_SIZE -layers flatten $IMG_NAME
 	# move the created wallpaper to user folder

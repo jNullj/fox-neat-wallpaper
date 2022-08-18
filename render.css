@@ -1,0 +1,16 @@
+body {
+    background-color: black;
+    color: green;
+    margin: 0;  /* browser default to have a margin for the page - remove it to utilize max space */
+    scrollbar-width: none;  /* hide scrollbar from screenshot */
+    font-family: 'Courier New', Courier;
+}
+body::-webkit-scrollbar {
+    /* hide scrollbar from screenshot
+    This is a way to do it for chromium based browsers
+    which don't accept the 'scrollbar-width' */
+    display: none;
+}
+old {   /* color for outdated packages */
+    color: red;
+}
