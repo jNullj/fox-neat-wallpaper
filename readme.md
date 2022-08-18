@@ -20,6 +20,9 @@ cd fox-neat-wallpaper
 # copy files to /opt/fox-neat-wallpaper
 cp *.sh /opt/fox-neat-wallpaper
 cp *.svg /opt/fox-neat-wallpaper
+cp *.html /opt/fox-neat-wallpaper
+cp *.css /opt/fox-neat-wallpaper
+cp *.js /opt/fox-neat-wallpaper
 # copy pacman hook, systemd timer and service
 cp fox-neat-wallpaper.hook /etc/pacman.d/hooks/fox-neat-wallpaper.hook
 cp fox-neat-wallpaper.service /usr/lib/systemd/user/fox-neat-wallpaper.service
