@@ -53,6 +53,7 @@ read_config_file () {
 	if [ ! -f "$1" ]; then	# test if file exists
 		return 2
 	fi
+	OLDIFS=$IFS
 	IFS="="
 	while read -r name value
 	do
@@ -71,6 +72,7 @@ read_config_file () {
 			fi
 		fi
 	done < $1
+	IFS=$OLDIFS
 	return 0
 }
 
