@@ -38,7 +38,6 @@ get_user_config_path () {
 }
 
 get_config_file () {
-	typeset -A config
 	# set default config
 	config=(
 		[example]="example"
