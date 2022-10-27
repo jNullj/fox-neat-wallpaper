@@ -4,6 +4,7 @@ let pkg_list = myurl.searchParams.get('pkg_list')   // list of all packages
 let outdated = myurl.searchParams.get('outdated')   // list of outdated packages seperated by semicolon
 let img_width = parseInt(myurl.searchParams.get('width'))   // image width to render
 let img_height = parseInt(myurl.searchParams.get('height')) // image height to render
+let background_color = myurl.searchParams.get('bg_color')   // background color
 // get the span element where packages are displayed
 // this is used by the functions bellow
 var container = document.getElementById('container')    // container used for better dimensions control
@@ -58,8 +59,16 @@ function mark_outdated(pkg_names){
         pkg_div.innerHTML = pkg_div.innerHTML.replace(re, "<old>$1</old>")
     })
 }
+/**
+ * Sets styling elements based on theme and color
+ * @param {string} bg_color background color name supported by html
+ */
+function updateTheme(bg_color){
+    document.body.style.backgroundColor = bg_color;
+}
 
 // generate the page
+updateTheme(background_color)
 insert_pkg_list(pkg_list)
 resizeFont(img_width, img_height)
 mark_outdated(outdated)
