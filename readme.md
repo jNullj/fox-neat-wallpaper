@@ -50,6 +50,16 @@ If you use other desktop environment and wish to automate this, pull requests ar
 
 If you wish to replace the logo you could use your own by replacing the filename in the script.
 
+## Configuration files
+
+Default settings can be changed using a configuration file.
+Both system-wide and user config are supported.
+
+For system-wide changes please create a config file at `/etc/opt/fox-neat-wallpaper/host.conf`
+For user specific changes please create a config file at `~/.config/fox-neat-wallpaper/user.conf`
+
+An example for a configuration file with all default values can be found at [example.conf](example.conf)
+
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.

@@ -2,10 +2,13 @@
 IMG_NAME=fox-neat-wallpaper.png
 WALLPAPER_PATH=$HOME/.fox-neat-wallpaper
 INSTALL_PATH=/opt/fox-neat-wallpaper
+HOST_CONFIG_PATH=/etc/opt/fox-neat-wallpaper/host.conf
+USER_CONFIG_PATH=$HOME/.config/fox-neat-wallpaper/user.conf
 IMAGE_SIZE_X=1920
 IMAGE_SIZE_Y=1080
 IMAGE_SIZE=${IMAGE_SIZE_X}x${IMAGE_SIZE_Y}
 LOGO_SIZE_PRECENT=60
+typeset -A config	# declare config as dictionary - make it global
 
 # reset those when running from root shell
 # this is added for usage of xfconf-query
@@ -28,6 +31,47 @@ get_display_resolution () {
 
 get_wallpaper_user_path () {
 	WALLPAPER_PATH=$HOME/.fox-neat-wallpaper
+}
+
+get_user_config_path () {
+	USER_CONFIG_PATH=$HOME/.config/fox-neat-wallpaper/user.conf
+}
+
+get_config_file () {
+	typeset -A config
+	# set default config
+	config=(
+		[example]="example"
+	)
+	# read system-wide config
+	read_config_file "$HOST_CONFIG_PATH"
+	# read user config
+	read_config_file "$USER_CONFIG_PATH"
+}
+
+read_config_file () {
+	if [ ! -f "$1" ]; then	# test if file exists
+		return 2
+	fi
+	IFS="="
+	while read -r name value
+	do
+		if [[ ! $name =~ ^\ *# && -n $name ]]; then
+			# only non empty/none comment lines
+
+			# this will not allow # in string quotes
+			value="${value%%\#*}"    # Del in line right comments
+			value="${value%%*( )}"   # Del trailing spaces
+			value="${value%\"*}"     # Del opening string quotes 
+			value="${value#\"*}"     # Del closing string quotes
+			
+			# only set value for known config values - was set earlier at defaults
+			if [[ -v "config[${name}]" ]]; then
+				config["${name}"]="${value}"
+			fi
+		fi
+	done < $1
+	return 0
 }
 
 # echo a list of outdated packages seperated by a new line using pacman-contrip's checkupdates
@@ -109,6 +153,9 @@ help_msg () {
 # update user values
 get_display_resolution
 get_wallpaper_user_path
+get_user_config_path
+# get config
+get_config_file
 
 case "$1" in
 	"update")
