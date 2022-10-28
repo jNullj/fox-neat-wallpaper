@@ -7,6 +7,7 @@ let img_height = parseInt(myurl.searchParams.get('height')) // image height to r
 let background_color = myurl.searchParams.get('bg_color')   // background color
 let package_text_color = myurl.searchParams.get('pkg_color');   // package text color
 let old_text_color = myurl.searchParams.get('old_color');   // package text color
+let text_font = myurl.searchParams.get('font');   // package text color
 // get the span element where packages are displayed
 // this is used by the functions bellow
 var container = document.getElementById('container')    // container used for better dimensions control
@@ -66,8 +67,9 @@ function mark_outdated(pkg_names){
  * @param {string} bg_color background color name supported by html
  * @param {string} pkg_txt_color up-to-date package text color
  * @param {string} old_txt_color out-dated package text color
+ * @param {string} txt_font packages names styling font family
  */
-function updateTheme(bg_color, pkg_txt_color, old_txt_color){
+function updateTheme(bg_color, pkg_txt_color, old_txt_color, txt_font){
     document.body.style.backgroundColor = bg_color;
     document.body.style.color = pkg_txt_color;
     let old_array = document.getElementsByTagName('old');
@@ -75,10 +77,11 @@ function updateTheme(bg_color, pkg_txt_color, old_txt_color){
         let element = old_array[i];
         element.style.color = old_txt_color;
     }
+    document.body.style.fontFamily = txt_font;
 }
 
 // generate the page
 insert_pkg_list(pkg_list)
 mark_outdated(outdated)
-updateTheme(background_color, package_text_color, old_text_color)
+updateTheme(background_color, package_text_color, old_text_color, text_font)
 resizeFont(img_width, img_height)

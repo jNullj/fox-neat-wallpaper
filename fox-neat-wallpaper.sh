@@ -45,6 +45,7 @@ get_config_file () {
 		[package-color]="green"
 		[old-package-color]="red"
 		[logo-image]="$INSTALL_PATH/logo.svg"
+		[font-family]="'Courier New', Courier"
 	)
 	# read system-wide config
 	read_config_file "$HOST_CONFIG_PATH"
@@ -121,6 +122,7 @@ generate_wallpaper () {
 	RENDER_URL="${RENDER_URL}&bg_color=${config[background-color]}"
 	RENDER_URL="${RENDER_URL}&pkg_color=${config[package-color]}"
 	RENDER_URL="${RENDER_URL}&old_color=${config[old-package-color]}"
+	RENDER_URL="${RENDER_URL}&font=${config[font-family]}"
 	# generate image of background text
 	# chromium spams lots of undesired output while attempting to use gpu acceleration. to avoid that output is redirected to /dev/null
 	chromium --headless --hide-scrollbars --window-size=$IMAGE_SIZE --screenshot=$IMG_NAME "$RENDER_URL" &> /dev/null
