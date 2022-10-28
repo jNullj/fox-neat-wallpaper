@@ -44,6 +44,7 @@ get_config_file () {
 		[background-color]="black"
 		[package-color]="green"
 		[old-package-color]="red"
+		[logo-image]="$INSTALL_PATH/logo.svg"
 	)
 	# read system-wide config
 	read_config_file "$HOST_CONFIG_PATH"
@@ -124,7 +125,7 @@ generate_wallpaper () {
 	# chromium spams lots of undesired output while attempting to use gpu acceleration. to avoid that output is redirected to /dev/null
 	chromium --headless --hide-scrollbars --window-size=$IMAGE_SIZE --screenshot=$IMG_NAME "$RENDER_URL" &> /dev/null
 	# add logo to the background
-	convert $IMG_NAME -size $(expr $IMAGE_SIZE_X \* $LOGO_SIZE_PRECENT / 100)x -background none $INSTALL_PATH/logo.svg -gravity center -extent $IMAGE_SIZE -layers flatten $IMG_NAME
+	convert $IMG_NAME -size $(expr $IMAGE_SIZE_X \* $LOGO_SIZE_PRECENT / 100)x -background none ${config[logo-image]} -gravity center -extent $IMAGE_SIZE -layers flatten $IMG_NAME
 	# move the created wallpaper to user folder
 	mkdir -p $WALLPAPER_PATH
 	mv $IMG_NAME $WALLPAPER_PATH
