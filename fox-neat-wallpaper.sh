@@ -42,6 +42,7 @@ get_config_file () {
 	config=(
 		[example]="example"
 		[background-color]="black"
+		[package-color]="green"
 	)
 	# read system-wide config
 	read_config_file "$HOST_CONFIG_PATH"
@@ -111,7 +112,7 @@ generate_wallpaper () {
 	outdated="${outdated::-1}"	# remove last semicolon to avoid marking new value when there is none
 	# generate image of background text
 	# chromium spams lots of undesired output while attempting to use gpu acceleration. to avoid that output is redirected to /dev/null
-	chromium --headless --hide-scrollbars --window-size=$IMAGE_SIZE --screenshot=$IMG_NAME "file://$INSTALL_PATH/render.html?pkg_list=$all_pks&outdated=$outdated&height=$IMAGE_SIZE_Y&width=$IMAGE_SIZE_X&bg_color=${config[background-color]}" &> /dev/null
+	chromium --headless --hide-scrollbars --window-size=$IMAGE_SIZE --screenshot=$IMG_NAME "file://$INSTALL_PATH/render.html?pkg_list=$all_pks&outdated=$outdated&height=$IMAGE_SIZE_Y&width=$IMAGE_SIZE_X&bg_color=${config[background-color]}&pkg_color=${config[package-color]}" &> /dev/null
 	# add logo to the background
 	convert $IMG_NAME -size $(expr $IMAGE_SIZE_X \* $LOGO_SIZE_PRECENT / 100)x -background none $INSTALL_PATH/logo.svg -gravity center -extent $IMAGE_SIZE -layers flatten $IMG_NAME
 	# move the created wallpaper to user folder
