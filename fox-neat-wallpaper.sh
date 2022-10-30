@@ -10,6 +10,44 @@ IMAGE_SIZE=${IMAGE_SIZE_X}x${IMAGE_SIZE_Y}
 LOGO_SIZE_PRECENT=60
 typeset -A config	# declare config as dictionary - make it global
 
+# create the cahce folder
+TEMP_PATH=${TMPDIR:-/tmp}
+TEMP_PATH=$TEMP_PATH/fox-neat-wallpaper
+mkdir -p $TEMP_PATH	# create directory if does not exist yet
+
+isCacheFresh () {	# test if a file in cache is up-to-date (modified in the last 5 min)
+	local FILE_PATH="$1"
+	if [ ! -f "$FILE_PATH" ]; then
+		return 2
+	fi
+	local MODIFICATION_TIMESTAMP=$(stat  -c %Y "$FILE_PATH")	# timestamp in seconds
+	local CURRENT_TIMESTAMP=$(date +%s)
+	local TIMESTAMP_DIFF=$(($CURRENT_TIMESTAMP-$MODIFICATION_TIMESTAMP))
+	# if file is older then 5 min its not "fresh" and will be recreataed
+	if [[ $TIMESTAMP_DIFF -gt 300 ]]; then
+		return 1
+	fi
+	# if everything good, lets reuse from the 'fresh' cache
+	return 0
+}
+
+cacheableResult () {	# perform command and cache the result, if the result already cached and fresh, return it
+	local COMMAND="$1"
+	local CACHE_NAME="$2"
+	local CACHE_FILE_PATH="$TEMP_PATH/$CACHE_NAME"
+
+	# if cache is fresh, return from cache
+	if isCacheFresh "$CACHE_FILE_PATH"; then
+		cat $CACHE_FILE_PATH
+		return 0
+	fi
+	# else run command and save to cache
+	local COMMAND_RETURN="$($COMMAND)"
+	echo "$COMMAND_RETURN" > "$CACHE_FILE_PATH"
+	echo "$COMMAND_RETURN"	# return result
+	return 0
+}
+
 # reset those when running from root shell
 # this is added for usage of xfconf-query
 # otherwise dbus query from user as root fails
@@ -96,7 +134,10 @@ get_outdated_packages () {
 }
 
 get_current_packages () {
-	echo "$(pacman -Q)"
+	local COMMAND="pacman -Q"
+	local CACHENAME="get_current_packages"
+	local RESULT="$(cacheableResult "$COMMAND" "$CACHENAME")"
+	echo "$RESULT"
 }
 
 generate_wallpaper () {
@@ -104,7 +145,9 @@ generate_wallpaper () {
 	local all_pks # delcare before setting to insure exit code is picked, otherwise bash will first set then make local which will allways exit with 0
 	local outdated
 	all_pks="$(get_current_packages | tr '\n' ' ')"
-	outdated="$(get_outdated_packages)"
+	local COMMAND="get_outdated_packages"
+	local CACHENAME="get_outdated_packages"
+	outdated="$(cacheableResult "$COMMAND" "$CACHENAME")"
 	# if get_outdated_packages failed, dont remove the existing wallpaper with an empty one
 	if [ $? -ne 0 ]; then
 		# checkupdates might fail (for example if there is no network)
