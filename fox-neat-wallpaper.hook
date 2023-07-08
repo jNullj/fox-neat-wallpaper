@@ -8,4 +8,4 @@ Target = *
 Description = Updating fox-neat-wallpaper for relevant users
 Depends = imagemagick
 When = PostTransaction
-Exec = /bin/bash /opt/fox-neat-wallpaper/hook-script.sh
+Exec = /bin/timeout 2m /bin/bash /opt/fox-neat-wallpaper/hook-script.sh
