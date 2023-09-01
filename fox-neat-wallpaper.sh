@@ -32,6 +32,7 @@ isCacheFresh () {	# test if a file in cache is up-to-date (modified in the last 
 }
 
 cacheableResult () {	# perform command and cache the result, if the result already cached and fresh, return it
+	local ret_code
 	local COMMAND="$1"
 	local CACHE_NAME="$2"
 	local CACHE_FILE_PATH="$TEMP_PATH/$CACHE_NAME"
@@ -43,6 +44,11 @@ cacheableResult () {	# perform command and cache the result, if the result alrea
 	fi
 	# else run command and save to cache
 	local COMMAND_RETURN="$($COMMAND)"
+	ret_code=$?
+	if [ $ret_code -ne 0 ]; then
+		# don't cache on error, pass error to caller
+		return $ret_code
+	fi
 	echo "$COMMAND_RETURN" > "$CACHE_FILE_PATH"
 	echo "$COMMAND_RETURN"	# return result
 	return 0
