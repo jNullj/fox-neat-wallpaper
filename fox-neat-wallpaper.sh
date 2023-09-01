@@ -124,9 +124,9 @@ get_outdated_packages () {
 	local ret_code
 	updates_output="$(checkupdates)"
 	ret_code=$?
-	if [ $ret_code -ne 0 ] && [ $ret_code -ne 2 ]; then
-		# signal there is an issue and stop wallpaper rewrite
-		return 1
+	if [ $ret_code -ne 0 ]; then
+		# will return 1 on failure or 2 when no updates are available
+		return $ret_code
 	fi
 	echo "$updates_output" | while read -r pkgname old_ver arrow new_ver; do
 		echo "$pkgname $old_ver;"
