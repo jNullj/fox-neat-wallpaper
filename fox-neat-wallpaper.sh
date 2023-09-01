@@ -150,21 +150,30 @@ generate_wallpaper () {
 	cd /tmp
 	local all_pks # delcare before setting to insure exit code is picked, otherwise bash will first set then make local which will allways exit with 0
 	local outdated
+	local ret_code
+	local up_to_date=0
 	all_pks="$(get_current_packages | tr '\n' ' ')"
 	local COMMAND="get_outdated_packages"
 	local CACHENAME="get_outdated_packages"
 	outdated="$(cacheableResult "$COMMAND" "$CACHENAME")"
+	ret_code=$?
 	# if get_outdated_packages failed, dont remove the existing wallpaper with an empty one
-	if [ $? -ne 0 ]; then
-		# checkupdates might fail (for example if there is no network)
-		# if that happends there is no point in updating anything
+	if [ $ret_code -eq 1 ]; then
+		# error code 1 indicates failed attempt to check for updates
 		return 1
+	fi
+	if [ $ret_code -eq 2 ]; then
+		# up to date
+		up_to_date=1
 	fi
 	outdated="$(echo $outdated | tr --d '\n')"
 	outdated="${outdated::-1}"	# remove last semicolon to avoid marking new value when there is none
 	# add get parameters
 	RENDER_URL="file://$INSTALL_PATH/render.html?"
 	RENDER_URL="${RENDER_URL}pkg_list=$all_pks"
+	if [ $up_to_date -eq 0 ]; then
+		RENDER_URL="${RENDER_URL}&outdated=$outdated"
+	fi
 	RENDER_URL="${RENDER_URL}&outdated=$outdated"
 	RENDER_URL="${RENDER_URL}&height=$IMAGE_SIZE_Y"
 	RENDER_URL="${RENDER_URL}&width=$IMAGE_SIZE_X"
