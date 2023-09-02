@@ -165,9 +165,10 @@ generate_wallpaper () {
 	if [ $ret_code -eq 2 ]; then
 		# up to date
 		up_to_date=1
+	else
+		outdated="$(echo $outdated | tr --d '\n')"
+		outdated="${outdated::-1}"	# remove last semicolon to avoid marking new value when there is none
 	fi
-	outdated="$(echo $outdated | tr --d '\n')"
-	outdated="${outdated::-1}"	# remove last semicolon to avoid marking new value when there is none
 	# add get parameters
 	RENDER_URL="file://$INSTALL_PATH/render.html?"
 	RENDER_URL="${RENDER_URL}pkg_list=$all_pks"
