@@ -82,6 +82,8 @@ function updateTheme(bg_color, pkg_txt_color, old_txt_color, txt_font){
 
 // generate the page
 insert_pkg_list(pkg_list)
-mark_outdated(outdated)
+if (outdated) {
+    mark_outdated(outdated)
+}
 updateTheme(background_color, package_text_color, old_text_color, text_font)
 resizeFont(img_width, img_height)

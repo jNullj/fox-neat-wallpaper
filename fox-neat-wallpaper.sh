@@ -32,6 +32,8 @@ isCacheFresh () {	# test if a file in cache is up-to-date (modified in the last 
 }
 
 cacheableResult () {	# perform command and cache the result, if the result already cached and fresh, return it
+	local ret_code
+	local COMMAND_RETURN=
 	local COMMAND="$1"
 	local CACHE_NAME="$2"
 	local CACHE_FILE_PATH="$TEMP_PATH/$CACHE_NAME"
@@ -42,7 +44,12 @@ cacheableResult () {	# perform command and cache the result, if the result alrea
 		return 0
 	fi
 	# else run command and save to cache
-	local COMMAND_RETURN="$($COMMAND)"
+	COMMAND_RETURN="$($COMMAND)"
+	ret_code=$?
+	if [ $ret_code -ne 0 ]; then
+		# don't cache on error, pass error to caller
+		return $ret_code
+	fi
 	echo "$COMMAND_RETURN" > "$CACHE_FILE_PATH"
 	echo "$COMMAND_RETURN"	# return result
 	return 0
@@ -124,9 +131,9 @@ get_outdated_packages () {
 	local ret_code
 	updates_output="$(checkupdates)"
 	ret_code=$?
-	if [ $ret_code -ne 0 ] && [ $ret_code -ne 2 ]; then
-		# signal there is an issue and stop wallpaper rewrite
-		return 1
+	if [ $ret_code -ne 0 ]; then
+		# will return 1 on failure or 2 when no updates are available
+		return $ret_code
 	fi
 	echo "$updates_output" | while read -r pkgname old_ver arrow new_ver; do
 		echo "$pkgname $old_ver;"
@@ -144,21 +151,31 @@ generate_wallpaper () {
 	cd /tmp
 	local all_pks # delcare before setting to insure exit code is picked, otherwise bash will first set then make local which will allways exit with 0
 	local outdated
+	local ret_code
+	local up_to_date=0
 	all_pks="$(get_current_packages | tr '\n' ' ')"
 	local COMMAND="get_outdated_packages"
 	local CACHENAME="get_outdated_packages"
 	outdated="$(cacheableResult "$COMMAND" "$CACHENAME")"
+	ret_code=$?
 	# if get_outdated_packages failed, dont remove the existing wallpaper with an empty one
-	if [ $? -ne 0 ]; then
-		# checkupdates might fail (for example if there is no network)
-		# if that happends there is no point in updating anything
+	if [ $ret_code -eq 1 ]; then
+		# error code 1 indicates failed attempt to check for updates
 		return 1
 	fi
-	outdated="$(echo $outdated | tr --d '\n')"
-	outdated="${outdated::-1}"	# remove last semicolon to avoid marking new value when there is none
+	if [ $ret_code -eq 2 ]; then
+		# up to date
+		up_to_date=1
+	else
+		outdated="$(echo $outdated | tr --d '\n')"
+		outdated="${outdated::-1}"	# remove last semicolon to avoid marking new value when there is none
+	fi
 	# add get parameters
 	RENDER_URL="file://$INSTALL_PATH/render.html?"
 	RENDER_URL="${RENDER_URL}pkg_list=$all_pks"
+	if [ $up_to_date -eq 0 ]; then
+		RENDER_URL="${RENDER_URL}&outdated=$outdated"
+	fi
 	RENDER_URL="${RENDER_URL}&outdated=$outdated"
 	RENDER_URL="${RENDER_URL}&height=$IMAGE_SIZE_Y"
 	RENDER_URL="${RENDER_URL}&width=$IMAGE_SIZE_X"
