@@ -129,7 +129,7 @@ read_config_file () {
 get_outdated_packages () {
 	local updates_output # delcare before setting to insure exit code is picked, otherwise bash will first set then make local which will allways exit with 0
 	local ret_code
-	updates_output="$(checkupdates)"
+	updates_output="$(checkupdates --nocolor)"
 	ret_code=$?
 	if [ $ret_code -ne 0 ]; then
 		# will return 1 on failure or 2 when no updates are available
