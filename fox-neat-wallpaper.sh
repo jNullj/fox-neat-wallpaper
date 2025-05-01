@@ -183,14 +183,16 @@ generate_wallpaper () {
 	RENDER_URL="${RENDER_URL}&pkg_color=${config[package-color]}"
 	RENDER_URL="${RENDER_URL}&old_color=${config[old-package-color]}"
 	RENDER_URL="${RENDER_URL}&font=${config[font-family]}"
+	local IMG_FULL_PATH=$TEMP_PATH/$IMG_NAME
 	# generate image of background text
-	# chromium spams lots of undesired output while attempting to use gpu acceleration. to avoid that output is redirected to /dev/null
-	chromium --headless=old --hide-scrollbars --window-size="$IMAGE_SIZE_X,$IMAGE_SIZE_Y" --screenshot=$IMG_NAME "$RENDER_URL" &> /dev/null
+	TEMP_PROFILE=$(mktemp -d)	# create a temporary profile for firefox, otherwise it will try to use the default profile and fail if firefox is open
+	firefox --headless --profile "$TEMP_PROFILE" --screenshot "$IMG_FULL_PATH" --window-size="$IMAGE_SIZE_X,$IMAGE_SIZE_Y" "$RENDER_URL" &> /dev/null
+	rm -rf "$TEMP_PROFILE"  # clean up the temporary profile after use
 	# add logo to the background
-	magick $IMG_NAME -size $(expr $IMAGE_SIZE_X \* $LOGO_SIZE_PRECENT / 100)x -background none ${config[logo-image]} -gravity center -extent $IMAGE_SIZE -layers flatten $IMG_NAME
+	magick $IMG_FULL_PATH -size $(expr $IMAGE_SIZE_X \* $LOGO_SIZE_PRECENT / 100)x -background none ${config[logo-image]} -gravity center -extent $IMAGE_SIZE -layers flatten $IMG_FULL_PATH
 	# move the created wallpaper to user folder
 	mkdir -p $WALLPAPER_PATH
-	mv $IMG_NAME $WALLPAPER_PATH
+	mv $IMG_FULL_PATH $WALLPAPER_PATH
 }
 
 # set xfce4 wallpaper for user using xfconf-query
