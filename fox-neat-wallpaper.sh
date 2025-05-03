@@ -197,11 +197,22 @@ generate_wallpaper () {
 
 # set xfce4 wallpaper for user using xfconf-query
 set_wallpaper () {
-local PRIMARY_DISPLAY=$(get_primary_display)
-xfconf-query \
-  --channel xfce4-desktop \
-  --property "/backdrop/screen0/monitor${PRIMARY_DISPLAY}/workspace0/last-image" \
-  --set $WALLPAPER_PATH/$IMG_NAME
+	local PRIMARY_DISPLAY=$(get_primary_display)
+	local WALLPAPER_PROPERTY="/backdrop/screen0/monitor${PRIMARY_DISPLAY}/workspace0/last-image"
+
+	# reset wallpaper to refresh it when its the same path
+	xfconf-query \
+	--channel xfce4-desktop \
+	--property $WALLPAPER_PROPERTY \
+	--reset
+
+	# set the wallpaper
+	xfconf-query \
+	--channel xfce4-desktop \
+	--property $WALLPAPER_PROPERTY \
+	--create \
+	--type string \
+	--set $WALLPAPER_PATH/$IMG_NAME
 }
 
 enable_timer () {
